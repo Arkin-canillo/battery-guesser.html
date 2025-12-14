@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess the Battery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }.game {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.battery {
+  position: relative;
+  width: 80px;
+  height: 160px;
+  border: 4px solid #fff;
+  border-radius: 8px;
+  margin: 20px auto;
+  overflow: hidden;
+}
+
+.battery::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 22px;
+  width: 32px;
+  height: 10px;
+  background: #fff;
+  border-radius: 4px 4px 0 0;
+}
+
+.battery-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: red;
+  transition: height 0.3s, background 0.3s;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background: #4caf50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #43a047;
+}
+
+.result {
+  margin-top: 10px;
+  font-size: 16px;
+  min-height: 24px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="game">
+    <h2 id="prompt">Please guess 50%</h2><div class="battery">
+  <div class="battery-fill" id="batteryFill"></div>
+</div>
+
+<input type="range" min="0" max="100" value="0" id="slider" />
+<button onclick="submitGuess()">Done</button>
+
+<div class="result" id="result"></div>
+
+<audio id="clickSound" src="https://freesound.org/data/previews/256/256113_3263906-lq.mp3"></audio>
+<audio id="successSound" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
+
+  </div>  <script>
+    let target = Math.floor(Math.random() * 101);
+    const prompt = document.getElementById('prompt');
+    const slider = document.getElementById('slider');
+    const fill = document.getElementById('batteryFill');
+    const result = document.getElementById('result');
+    const clickSound = document.getElementById('clickSound');
+    const successSound = document.getElementById('successSound');
+
+    prompt.textContent = `Please guess ${target}%`;
+
+    function updateBattery(value) {
+      fill.style.height = value + '%';
+
+      if (value < 40) {
+        fill.style.background = 'red';
+      } else if (value < 75) {
+        fill.style.background = 'orange';
+      } else {
+        fill.style.background = 'limegreen';
+      }
+    }
+
+    slider.addEventListener('input', () => {
+      updateBattery(slider.value);
+      result.textContent = '';
+      clickSound.currentTime = 0;
+      clickSound.play();
+    });
+
+    function submitGuess() {
+      const guess = Number(slider.value);
+      const diff = Math.abs(guess - target);
+
+      if (diff === 0) {
+        result.textContent = 'Perfect! Exact match  ';
+        successSound.currentTime = 0;
+        successSound.play();
+      } else if (diff <= 5) {
+        result.textContent = 'Very close!';
+        successSound.currentTime = 0;
+        successSound.play();
+      } else if (diff <= 15) {
+        result.textContent = 'Close.';
+      } else {
+        result.textContent = 'Way off ';
+      }
+
+      setTimeout(() => {
+        target = Math.floor(Math.random() * 101);
+        prompt.textContent = `Please guess ${target}%`;
+        slider.value = 0;
+        updateBattery(0);
+        result.textContent = '';
+      }, 1200);
+    }
+  </script></body>
+</html>
